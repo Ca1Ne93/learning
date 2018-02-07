@@ -1,0 +1,8 @@
+int comm_sys_endian(void)
+{
+	int a = 0x01;
+	char *p = NULL;
+	p = (char*)(&a);
+
+	return *p == 0x01 ? e_comm_little_endian :e_comm_big_endian;
+}
