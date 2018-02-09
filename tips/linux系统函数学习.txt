@@ -1,0 +1,141 @@
+1.extern char *strdup(char *s); 
+功 能: 将串拷贝到新建的位置处
+strdup()在内部调用了malloc()为变量分配内存，不需要使用返回的字符串时，需要用free()释放相应的内存空间，否则会造成内存泄漏。
+
+2.int setvbuf(FILE *stream, char *buf, int type, unsigned size);
+　　参数：stream ：指向流的指针 ；
+　　buf ： 期望缓冲区的地址；
+　　type ： 期望缓冲区的类型：
+　　_IOFBF(满缓冲）：当缓冲区为空时，从流读入数据。或者当缓冲区满时，向流写入数 据。
+　　_IOLBF(行缓冲）：每次从流中读入一行数据或向流中写入一行数据。
+　　_IONBF(无缓冲）：直接从流中读入数据或直接向流中写入数据，而没有缓冲区。
+　　size ： 缓冲区内字节的数量。
+
+3.getopt、getopt_long和getopt_long_only
+    extern char *optarg;  
+    extern int optind, opterr, optopt;
+     optind表示的是下一个将被处理到的参数在argv中的下标值。
+     如果指定opterr = 0的话，在getopt、getopt_long、getopt_long_only遇到错误将不会输出错误信息到标准输出流。
+    字符串optstring可以下列元素:
+    1.单个字符，表示选项，
+    2.单个字符后接一个冒号：表示该选项后必须跟一个参数。参数紧跟在选项后或者以空格隔开。该参数的指针赋给optarg。
+    3 单个字符后跟两个冒号，表示该选项后可以有参数也可以没有参数。如果有参数，参数必须紧跟在选项后不能以空格隔开。该参数的指针赋给optarg。（这个特性是GNU的扩张）。
+    1).int getopt(int argc, char * const argv[], const char *optstring); 
+    2). int getopt_long(int argc, char * const argv[], const char *optstring, const struct option *longopts, int *longindex);
+在这里，longopts指向的是一个由option结构体组成的数组，那个数组的每个元素，指明了一个“长参数”（即形如--name的参数）名称和性质：
+           struct option {
+               const char *name; //参数的名称
+               int         has_arg;    //指明是否带参数，其数值可选：no_argument (即 0) 表明这个长参数不带参数
+                                               //required_argument (即 1) 表明这个长参数必须带参数
+                                               //optional_argument（即2）表明这个长参数后面带的参数是可选的
+               int        *flag;//当这个指针为空的时候，函数直接将val的数值从getopt_long的返回值返回出去，当它非空时，val的值会被赋到flag指向的整型数中，而函数返回值为0
+               int         val;//用于指定函数找到该选项时的返回值，或者当flag非空时指定flag指向的数据的值
+           };
+      当所给的参数存在问题时，opt（即函数返回值是'?'）
+
+4.chdir和getcwd
+char *getcwd( char *buffer, int maxlen );
+功 能：获取当前工作目录
+参数说明：getcwd()会将当前工作目录的绝对路径复制到参数buffer所指的内存空间中,参数maxlen为buffer的空间大小。
+返 回 值：成功则返回当前工作目录，失败返回 FALSE。
+
+5.fcntl
+函数可执行各种描述符控制操作
+
+6.getrlimit和setrlimit
+获取或设定资源使用限制。每种资源都有相关的软硬限制，软限制是内核强加给相应资源的限制值，硬限制是软限制的最大值。
+非授权调用进程只可以将其软限制指定为0~硬限制范围中的某个值，同时能不可逆转地降低其硬限制。授权进程可以任意改变其软硬限制。
+RLIM_INFINITY的值表示不对资源限制。
+用法：
+#include <sys/resource.h>
+
+int getrlimit(int resource, struct rlimit *rlim);
+int setrlimit(int resource, const struct rlimit *rlim);
+resource：可能的选择有
+RLIMIT_AS //进程的最大虚内存空间，字节为单位。
+RLIMIT_CORE //内核转存文件的最大长度。
+RLIMIT_CPU //最大允许的CPU使用时间，秒为单位。当进程达到软限制，内核将给其发送SIGXCPU信号，这一信号的默认行为是终止进程的执行。然而，可以捕捉信号，处理句柄可将控制返回给主程序。如果进程继续耗费CPU时间，核心会以每秒一次的频率给其发送SIGXCPU信号，直到达到硬限制，那时将给进程发送 SIGKILL信号终止其执行。
+RLIMIT_DATA //进程数据段的最大值。
+RLIMIT_FSIZE //进程可建立的文件的最大长度。如果进程试图超出这一限制时，核心会给其发送SIGXFSZ信号，默认情况下将终止进程的执行。
+RLIMIT_LOCKS //进程可建立的锁和租赁的最大值。
+RLIMIT_MEMLOCK //进程可锁定在内存中的最大数据量，字节为单位。
+RLIMIT_MSGQUEUE //进程可为POSIX消息队列分配的最大字节数。
+RLIMIT_NICE //进程可通过setpriority() 或 nice()调用设置的最大完美值。
+RLIMIT_NOFILE //指定比进程可打开的最大文件描述词大一的值，超出此值，将会产生EMFILE错误。
+RLIMIT_NPROC //用户可拥有的最大进程数。
+RLIMIT_RTPRIO //进程可通过sched_setscheduler 和 sched_setparam设置的最大实时优先级。
+RLIMIT_SIGPENDING //用户可拥有的最大挂起信号数。
+RLIMIT_STACK //最大的进程堆栈，以字节为单位。
+rlim：描述资源软硬限制的结构体，原型如下
+struct rlimit {
+　　rlim_t rlim_cur;
+　　rlim_t rlim_max;
+};
+返回说明：
+成功执行时，返回0。失败返回-1，errno被设为以下的某个值
+EFAULT：rlim指针指向的空间不可访问
+EINVAL：参数无效
+EPERM：增加资源限制值时，权能不允许
+
+7.setjmp和longjmp
+在 C 语言中，我们不能使用 goto 语句来跳转到另一个函数中的某个 label 处；
+但提供了两个函数——setjmp 和 longjmp来完成这种类型的分支跳转。后面我们会看到这两个函数在处理异常上面的非常有用。
+
+首先我们要知道，实现这种类型的跳转，和操作系统中任务切换的上下文切换有点类似，我们只需要恢复 Label 标签处函数上下文即可。函数的上下文包括以下内容：
+
+##函数栈帧，主要是栈帧指针BP和栈顶指针SP
+##程序指针PC，此处为指向 Label 语句的地址
+##其它寄存器，这是和体系相关的，在 x86 体系下需要保存有的 AX/BX/CX 等等 callee-regs。
+
+#函数原型：
+#include <setjmp.h>
+int setjmp(jmp_buf env);
+#setjmp 函数的功能是将函数在此处的上下文保存在 jmp_buf 结构体中，以供 longjmp 从此结构体中恢复。
+
+##参数 env 即为保存上下文的 jmp_buf 结构体变量；
+##如果直接调用该函数，返回值为 0； 若该函数从 longjmp 调用返回，返回值为非零，由 longjmp 函数提供。
+根据函数的返回值，我们就可以知道 setjmp 函数调用是第一次直接调用，还是由其它地方跳转过来的。
+void longjmp(jmp_buf env, int val);
+#longjmp 函数的功能是从 jmp_buf 结构体中恢复由 setjmp 函数保存的上下文，该函数不返回，而是从 setjmp 函数中返回。
+
+##参数 env 是由 setjmp 函数保存过的上下文。
+##参数 val 表示从 longjmp 函数传递给 setjmp 函数的返回值，如果 val 值为0， setjmp 将会返回1，否则返回 val。
+##longjmp 不直接返回，而是从 setjmp 函数中返回，longjmp 执行完之后，程序就像刚从 setjmp 函数返回一样。
+
+8.sync、fsync与fdatasync函数
+#sync函数
+sync函数只是将所有修改过的块缓冲区排入写队列，然后就返回，它并不等待实际写磁盘操作结束。
+通常称为update的系统守护进程会周期性地（一般每隔30秒）调用sync函数。这就保证了定期冲洗内核的块缓冲区。命令sync(1)也调用sync函数。
+
+#fsync函数
+fsync函数只对由文件描述符filedes指定的单一文件起作用，并且等待写磁盘操作结束，然后返回。
+fsync可用于数据库这样的应用程序，这种应用程序需要确保将修改过的块立即写到磁盘上。
+
+#fdatasync函数
+fdatasync函数类似于fsync，但它只影响文件的数据部分。而除数据外，fsync还会同步更新文件的属性。
+对于提供事务支持的数据库，在事务提交时，都要确保事务日志（包含该事务所有的修改操作以及一个提交记录）完全写到硬盘上，才认定事务提交成功并返回给应用层。
+#fflush：标准IO函数（如fread，fwrite等）会在内存中建立缓冲，该函数刷新内存缓冲，将内容写入内核缓冲，要想将其真正写入磁盘，还需要调用fsync。
+（即先调用fflush然后再调用fsync，否则不会起作用）。fflush以指定的文件流描述符为参数（对应以fopen等函数打开的文件流），仅仅是把上层缓冲区中的数据刷新到内核缓冲区就返回，
+因此相对于fsync而言不是很安全，还需要再调用一下fsync来把数据真正写入硬盘
+
+#函数原型：
+
+##int fsync(int fd);
+fsync的功能是确保文件fd所有已修改的内容已经正确同步到硬盘上，该调用会阻塞等待直到设备报告IO完成。
+PS：如果采用内存映射文件的方式进行文件IO（使用mmap，将文件的page cache直接映射到进程的地址空间，通过写内存的方式修改文件），
+也有类似的系统调用来确保修改的内容完全同步到硬盘之上：
+
+#incude <sys/mman.h>  
+##int msync(void *addr, size_t length, int flags)
+msync需要指定同步的地址区间，如此细粒度的控制似乎比fsync更加高效（因为应用程序通常知道自己的脏页位置），
+但实际上（Linux）kernel中有着十分高效的数据结构，能够很快地找出文件的脏页，使得fsync只会同步文件的修改内容。
+ 
+#fsync与fdatasync区别
+
+除了同步文件的修改内容（脏页），fsync还会同步文件的描述信息（metadata，包括size、访问时间等等），
+因为文件的数据和metadata通常存在硬盘的不同地方，因此fsync至少需要两次IO写操作，多余的一次IO操作，根据Wikipedia的数据，
+当前硬盘驱动的平均寻道时间（Average seek time）大约是3~15ms，7200RPM硬盘的平均旋转延迟（Average rotational latency）大约为4ms，
+因此一次IO操作的耗时大约为10ms左右。Posix同样定义了fdatasync，放宽了同步的语义以提高性能：
+
+#int fdatasync(int fd);
+fdatasync的功能与fsync类似，但是仅仅在必要的情况下才会同步，因此可以减少一次IO写操作。
