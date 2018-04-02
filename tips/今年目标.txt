@@ -1,0 +1,4 @@
+1.shell½Å±¾
+2.redis´úÂëÍ¨¶Á
+3.postgresql
+4.python
