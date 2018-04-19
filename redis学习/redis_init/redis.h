@@ -19,6 +19,21 @@
 #define REDIS_DEFAULT_DBNUM     16
 #define REDIS_DEFAULT_TCP_KEEPALIVE 0
 
+/* 命令标志 */
+#define REDIS_CMD_WRITE 1                   /* "w" flag */
+#define REDIS_CMD_READONLY 2                /* "r" flag */
+#define REDIS_CMD_DENYOOM 4                 /* "m" flag */
+#define REDIS_CMD_NOT_USED_1 8              /* no longer used flag */
+#define REDIS_CMD_ADMIN 16                  /* "a" flag */
+#define REDIS_CMD_PUBSUB 32                 /* "p" flag */
+#define REDIS_CMD_NOSCRIPT  64              /* "s" flag */
+#define REDIS_CMD_RANDOM 128                /* "R" flag */
+#define REDIS_CMD_SORT_FOR_SCRIPT 256       /* "S" flag */
+#define REDIS_CMD_LOADING 512               /* "l" flag */
+#define REDIS_CMD_STALE 1024                /* "t" flag */
+#define REDIS_CMD_SKIP_MONITOR 2048         /* "M" flag */
+#define REDIS_CMD_ASKING 4096               /* "k" flag */
+
 #define REDIS_LRU_BITS 24
 
 typedef struct redisObject{
@@ -91,6 +106,8 @@ struct redisServer{
 	redisDb *db;		// 一个数组，保存着服务器
 
 	dict *commands;		// 命令表（受到rename配置选项的作用）
+
+	dict *orig_commands;// Command table before command renaming.
 
 	aeEventLoop *el;	// 事件状态
 
